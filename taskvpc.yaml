@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: "2010-09-09" 
+Description: "Creating Task VPC"
+
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags:
+      - Key: Name
+        Value: CloudFormation-vpc
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.0.0/24  
+      AvailabilityZone: us-east-2a
+      Tags:
+      - Key: Name
+        Value: PublicSubnet1
+
+
+      
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock: 10.0.1.0/24  
+      AvailabilityZone: us-east-2a
+      Tags: 
+      - Key: Name
+        Value: PrivateSubnet1
+    
+
+ 
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      Tags: 
+      - Key: Name
+        Value: PrivateRT
+      VpcId:
+        Ref: VPC
+
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: InterGW
+      
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VPC
+      InternetGatewayId:
+        Ref: InternetGateway
+
+
+  PrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: 
+        Ref: PrivateSubnet1
+      RouteTableId:
+        Ref: PrivateRouteTable
+
+
+   
+  PrivateRouteTableRoute:
+    Type: AWS::EC2::Route
+    Properties: 
+      RouteTableId:
+        Ref: PrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
+       
+
+
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: 
+      Tags: 
+      - Key: Name
+        Value: PublicRT
+      VpcId:
+        Ref: VPC
+
+
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: 
+        Ref: PublicSubnet1
+      RouteTableId:
+        Ref: PublicRouteTable
+
+  ElasticIp:  
+    Type: AWS::EC2::EIP
+    Properties: 
+      Domain: vpc
+   
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties: 
+      AllocationId: 
+        Fn::GetAtt: [ ElasticIp, AllocationId ]
+      SubnetId: 
+        Ref: PublicSubnet1
+
+
+  PublicRouteTableRoute:
+    Type: AWS::EC2::Route
+    Properties: 
+      RouteTableId:
+        Ref: PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: NatGateway
+
+
+        

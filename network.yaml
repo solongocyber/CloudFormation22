@@ -1,0 +1,180 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: " This is a Cloudformation Network-Stack with required components "
+Resources:  
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: No
+      EnableDnsSupport: No
+      InstanceTenancy: default
+      Tags:
+      - Key : Name
+        Value : !Join ['', [!Ref "AWS::StackName", "-VPC" ]]
+      - Key: Created by
+        Value: Solongo
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key : Name
+        Value: !Join [ '', [!Ref "AWS::StackName", "-InternetGateway"]]
+        
+  
+  VPCGatewayattachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+
+  PublicSubnet1: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0,!GetAZs ] 
+      Tags:
+      - Key: Name
+        Value: Public-1
+
+
+  PublicSubnet2: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.1.0/24
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1,!GetAZs ] 
+      Tags:
+      - Key: Name
+        Value: Public-2
+  
+
+  RouteTablePublic:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: PublicRT
+   
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayattachment
+    Properties: 
+      RouteTableId: !Ref RouteTablePublic
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref  InternetGateway
+
+  PublicSubnetAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTablePublic
+      SubnetId: !Ref PublicSubnet1
+      
+
+  PublicSubnetAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTablePublic
+      SubnetId: !Ref PublicSubnet2
+
+
+  PrivateSubnet1: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.11.0/24
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0,!GetAZs ] 
+      Tags:
+      - Key: Name
+        Value: Private-1
+
+
+  PrivateSubnet2: 
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.12.0/24
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1,!GetAZs ]
+      Tags:
+      - Key: Name
+        Value: Private-2
+
+
+  RouteTablePrivate: 
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+      - Key: Name
+        Value: PrivateRT
+
+
+  PrivateSubnetAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTablePrivate
+      SubnetId: !Ref PrivateSubnet1
+
+
+  PrivateSubnetAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTablePrivate
+      SubnetId: !Ref PrivateSubnet2
+
+
+  PrivateRouteTableRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTablePrivate
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+      - Key: Name
+        Value: !Sub NAT-${AWS::StackName}
+
+
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: VPC
+      
+
+    
+  SecurityGroup:  
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "This is for a Bastion needs to open ssh port"
+      GroupName: Bastion
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+       
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-07a0844029df33d7d
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+      - !Ref SecurityGroup
+      SubnetId: !Ref PublicSubnet2
+      DependsOn: 
+      KeyName: Mac key for - acumoaws101
+      
+
+  

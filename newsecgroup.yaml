@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Creating new securitygroup"
+Resources: 
+  WebInstanceSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "This is for a WebInstances"
+      GroupName:  "Web-SG"
+      VpcId: vpc-4e955e25
+
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-07a0844029df33d7d
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        - !Ref WebInstanceSG
+      SubnetId: subnet-3a118076
+      KeyName: Mac key for - acumoaws101

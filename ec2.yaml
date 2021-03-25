@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: "2010-09-09" 
+Description: "Creat EC2 Instance"
+Resources:
+########## Security Group ###########
+  WebInstanceSGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "This is for Web Instances"
+      GroupName: Web-Sec-Group
+      
+      VpcId: vpc-4e955e25
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+
+
+
+############ Web EC2 Instances ###############
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance" 
+    Properties: 
+      ImageId: ami-09246ddb00c7c4fef
+      InstanceType: t2.micro
+      SubnetId: subnet-3a118076
+      SecurityGroupIds: sg-76134410
+      KeyName: Mac key for - acumoaws101

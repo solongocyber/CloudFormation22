@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: " Trying to make s3 bucket "
+
+Parameters:
+  MyS3BucketName:
+    Type: String
+    Default: ""
+    Description: "Provide s3 bucket name here" 
+  
+  TagKey1: 
+    Type: String
+    Default: ""
+    Description: "Enter Key for Tag1"
+  
+  TagValue1:
+    Type: String
+    Default: ""
+    Description: "Enter Value for Tag1"
+  
+  TagKey2:
+    Type: String
+    Default: ""
+    Description: "Enter Key for Tag2"
+
+  TagValue2:
+    Type: String
+    Default: ""
+    Description: "Enter Value for Tag2"
+  
+  TagKey3:
+    Type: String
+    Default: ""
+    Description: "Enter Key for Tag3"
+
+  TagValue3:
+    Type: String
+    Default: ""
+    Description: "Enter Value for Tag3"
+
+  BucketVersioning:
+    Type: String
+    Default: "Suspended"
+    Description: "Enable Versioning S3 bucket"
+    AllowedValues: 
+      - Suspended
+      - Enabled
+
+
+  BucketEncryption:
+    Type: String
+    Default: "true"
+    Description: "Enable Bucket Encryption"
+    AllowedValues:
+      - true
+      - false
+
+  MasterKeyId:
+    Type: String
+    Default: "arn:aws:kms:us-east-2:553333611426:alias/aws/s3"
+    Description: "AWS DefaultKey-ARN"
+
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Ref MyS3BucketName
+      Tags:
+        - Key: !Ref TagKey1
+          Value: !Ref TagValue1
+        - Key: !Ref TagKey2
+          Value: !Ref TagValue2
+        - Key: !Ref TagKey3
+          Value: !Ref TagValue3
+      VersioningConfiguration:
+        Status: !Ref BucketVersioning 
+
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration: 
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Ref MasterKeyId
+              SSEAlgorithm: 'aws:kms'
+            BucketKeyEnabled: !Ref BucketEncryption
+
+
+
+
+      

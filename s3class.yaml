@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Creating s3 bucket with tag"
+
+Parameters:
+  MyS3BucketName:
+    Type: String
+    Default: " "
+    Description: "S3BucketName"
+  TagKey1:
+    Type: String
+    Default: ""
+    Description: "Enter Key for Tag1"
+  TagValue1:
+    Type: String
+    Default: ""
+    Description: "Enter Value for Tag1"
+  TagKey2:
+    Type: String
+    Default: ""
+    Description: "Enter Key for Tag2"
+  TagValue2:
+    Type: String
+    Default: ""
+    Description: "Enter Value for Tag2"
+
+  BucketVersioning:
+    Type: String
+    Default: "Suspended"
+    Description: "Bucket Versioning Configuration"
+    AllowedValues: 
+      - Suspended
+      - Enabled
+  BucketKeyEnabledConfiguration: 
+    Type: String
+    Default: false
+    Description: "Bucket Key Enabled Configuration"
+    AllowedValues:
+      - true
+      - false 
+Resources: 
+  myS3bucket: 
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref MyS3BucketName
+      Tags:
+        - Key: !Ref TagKey1
+          Value: !Ref TagValue1
+        - Key: !Ref TagKey2
+          Value: !Ref TagValue2
+      VersioningConfiguration:
+        Status: !Ref BucketVersioning 
+      BucketEncryption: 
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: !Ref BucketKeyEnabledConfiguration
+        

@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: " Create EC2 instances "
+Resources: 
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-07a0844029df33d7d
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        - sg-76134410
+      SubnetId: subnet-3a118076
+      KeyName: Mac key for - acumoaws101
+      
+
+
+

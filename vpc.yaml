@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: "2010-09-09" 
+Description: "Task-vpc2" ###optional. Why and what are you doing
+Resources:  ###Only 1 in whole templete. What resources are you tring to creat. Ex VPC what will you need to create###
+
+
+############## CloudFormationTask VPC #################
+  
+  task-vpc2: ###Custom name you give, Need to be Uniqe.This is a LOGICAL ID on Stack ###
+    Type: AWS::EC2::VPC ###What Kind of resource are you creating###
+    Properties:  ###Component of Resources###
+      CidrBlock: 10.0.0.0/16
+      Tags:
+      - Key: name
+        Value: task-vpc
+        Name: Task-vpc2
+
+
+
+
+########### Private-RT############
+
+
+#    Type: AWS::EC2::RouteTable
+ #   Properties: 
+  #    VpcId:  
+   #     !Ref task-vpc2
+
+######Security Group#########
+
+   # Type: AWS::EC2::SecurityGroup
+   # Properties:
+    #  GroupDescription: SG to test VPC
+    #  GroupName: Bastion SG
+     3 SecurityGroupIngress:
+     # - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 10.0.0.0/16
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: -80
+        CidrIp: 0.0.0.0/0

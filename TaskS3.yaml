@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: " Trying to make s3 bucket "
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: task-bucket-cloudformation
+
+      BucketEncryption: 
+      VersioningConfiguration: Suspended
+      Tags:
+        - 
+
+
+
+
+
+
+
+      bucket versioning. Default : disable
+      tag: optionol.
+      Default encryption (serverside encryption)
