@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: "2010-09-09" 
+Description: "Creat EC2Instance"
+
+
+### Parameters ###
+Parameters:
+  EC2Instance2: 
+    Type: String
+    Default: "t2.micro"
+    Description: "New EC2Instances"
+    AllowedValues:
+      - t2.micro
+      - t2.nano
+      - t2.small
+
+  ImageId:
+    Type: String
+    Default: ""
+    Description: "EC2 Image Id"
+
+  SSHKey:
+    Type: String
+    Default: "mackey_solongo"
+    Description: " PublicKeyName"
+  
+  SubnetId:
+    Type: String
+    Default: "subnet-0b4c3bf70877dd26e"
+    Description: "DefaultSubnetId"
+
+  EC2SG:
+    Type: String
+    Default: ""
+    Description: "EC2SG"
+
+  EC2NameTag:
+    Type: String
+    Default: "Apache Test"
+    Description: "EC2 Name"
+
+  ENVTag: 
+    Type: String
+    Default: "Dev"
+    Description: "EC2 Enviroment"
+    AllowedValues:
+      - Dev
+      - Test
+      - Prod
+
+
+### Resources ###
+Resources: 
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      ImageId: !Ref ImageId
+      InstanceType: !Ref EC2Instance2
+      KeyName: !Ref SSHKey
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds: 
+        - !ImportValue SecurityGroupEC2
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+            sudo yum update -y
+            sudo yum install httpd -y
+            sudo echo "HelloWorld" >> /var/www/html/index.html
+            sudo systemctl start httpd 
+            sudo systemctl enable httpd 
+      BlockDeviceMappings:
+      - DeviceName: "/dev/xvda"
+        Ebs:
+          VolumeType: "gp2"
+          DeleteOnTermination: "true"
+          VolumeSize: "20"
+      Tags:
+        - Key: "Name"
+          Value: !Ref EC2NameTag
+        - Key: "ENV"
+          Value: !Ref ENVTag
+
+
+
+### Outputs ###
+Outputs: 
+  InstanceId:
+    Value: !Ref EC2Instance
+    Description: " Instance Id"
+  InstancePublicIp:
+    Value: !GetAtt EC2Instance.PublicIp
+    Description: "Instance Public Ip"
